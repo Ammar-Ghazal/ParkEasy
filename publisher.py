@@ -8,7 +8,7 @@ def capture_and_send():
     
     # Set up RabbitMQ connection
     credentials = pika.PlainCredentials('FYDP', 'fydp')
-    parameters = pika.ConnectionParameters('192.168.27.168', 5672, '/', credentials)
+    parameters = pika.ConnectionParameters('192.168.27.168', 5672, 'FYDPhost', credentials)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     channel.queue_declare(queue='image_queue')
