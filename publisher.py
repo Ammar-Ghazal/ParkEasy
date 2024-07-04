@@ -7,7 +7,9 @@ def capture_and_send():
     camera = cv2.VideoCapture(0)
     
     # Set up RabbitMQ connection
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='your-computer-ip'))
+    credentials = pika.PlainCredentials('FYDP', 'fydp')
+    parameters = pika.ConnectionParameters('192.168.27.168', 5672, '/', credentials)
+    connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     channel.queue_declare(queue='image_queue')
 
