@@ -11,14 +11,14 @@ def send_to_rabbitmq(image, routing_key):
     parameters = pika.ConnectionParameters('192.168.118.168', 5672, 'FYDPhost', credentials)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
-    channel.queue_declare(queue='image_queue')
+    channel.queue_declare(queue=routing_key)
 
     # Convert the image to bytes and then to a base64 string
     _, buffer = cv2.imencode('.jpg', image)
     image_bytes = buffer.tobytes()
     image_base64 = base64.b64encode(image_bytes).decode('utf-8')
 
-    channel.basic_publish(exchange='', routing_key='image_queue', body=image_base64)
+    channel.basic_publish(exchange='', routing_key=routing_key, body=image_base64)
     connection.close()
 
 def capture_usb_camera():
@@ -27,7 +27,7 @@ def capture_usb_camera():
         ret, frame = cap.read()
         if ret:
             print("frame captured from usb cam")
-            send_to_rabbitmq(frame, 'image_queue')
+            send_to_rabbitmq(frame, 'usb_image_queue')
         time.sleep(2)
 
 def capture_csi2_camera():
@@ -37,7 +37,7 @@ def capture_csi2_camera():
     for x in range(10):
         frame = picam2.capture_array()
         print("frame captured from CSI2 cam")
-        send_to_rabbitmq(frame, 'image_queue')
+        send_to_rabbitmq(frame, 'csi2_image_queue')
         time.sleep(2)
 
 if __name__ == '__main__':
