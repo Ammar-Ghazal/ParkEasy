@@ -3,12 +3,20 @@ import time
 import cv2
 from picamera2 import Picamera2
 import pika
+import base64
+import numpy as np
 
 def send_to_rabbitmq(image, routing_key):
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='your_rabbitmq_server_ip'))
     channel = connection.channel()
     channel.queue_declare(queue=routing_key)
-    channel.basic_publish(exchange='', routing_key=routing_key, body=image.tobytes())
+
+    # Convert the image to bytes and then to a base64 string
+    _, buffer = cv2.imencode('.jpg', image)
+    image_bytes = buffer.tobytes()
+    image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+
+    channel.basic_publish(exchange='', routing_key=routing_key, body=image_base64)
     connection.close()
 
 def capture_usb_camera():
