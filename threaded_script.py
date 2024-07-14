@@ -7,34 +7,38 @@ import base64
 import numpy as np
 
 def send_to_rabbitmq(image, routing_key):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='your_rabbitmq_server_ip'))
+    credentials = pika.PlainCredentials('FYDP', 'fydp')
+    parameters = pika.ConnectionParameters('192.168.118.168', 5672, 'FYDPhost', credentials)
+    connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
-    channel.queue_declare(queue=routing_key)
+    channel.queue_declare(queue='image_queue')
 
     # Convert the image to bytes and then to a base64 string
     _, buffer = cv2.imencode('.jpg', image)
     image_bytes = buffer.tobytes()
     image_base64 = base64.b64encode(image_bytes).decode('utf-8')
 
-    channel.basic_publish(exchange='', routing_key=routing_key, body=image_base64)
+    channel.basic_publish(exchange='', routing_key='image_queue', body=image_base64)
     connection.close()
 
 def capture_usb_camera():
     cap = cv2.VideoCapture(0)  # 0 for first USB camera
-    while True:
+    for x in range(10):
         ret, frame = cap.read()
         if ret:
-            send_to_rabbitmq(frame, 'usb_camera')
-        time.sleep(0.1)
+            print("frame captured from usb cam")
+            send_to_rabbitmq(frame, 'image_queue')
+        time.sleep(2)
 
 def capture_csi2_camera():
     picam2 = Picamera2()
     picam2.configure(picam2.create_still_configuration())
     picam2.start()
-    while True:
+    for x in range(10):
         frame = picam2.capture_array()
-        send_to_rabbitmq(frame, 'csi2_camera')
-        time.sleep(0.1)
+        print("frame captured from CSI2 cam")
+        send_to_rabbitmq(frame, 'image_queue')
+        time.sleep(2)
 
 if __name__ == '__main__':
     usb_thread = threading.Thread(target=capture_usb_camera)
