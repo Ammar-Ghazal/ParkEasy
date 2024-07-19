@@ -2,6 +2,8 @@ import cv2
 import os
 import numpy as np
 
+# Refined parking lot grid line highlighting
+
 def highlight_gridlines(image_path):
     # Load the image, and convert it to grayscale (black & white)
     image = cv2.imread(image_path)
@@ -10,8 +12,8 @@ def highlight_gridlines(image_path):
     cv2.imshow('Grayscale Image', gray)
 
     # Reduce noise in the image by applying gaussian filter:
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
-    cv2.imshow('Gaussian Blur Image', blur)
+    blur1 = cv2.GaussianBlur(gray, (5, 5), 0)
+    cv2.imshow('Gaussian Blur Image', blur1)
 
     # Try adding another filter for smoother results:
     filtered = cv2.bilateralFilter(gray, 9, 75, 75)
