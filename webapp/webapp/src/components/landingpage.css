@@ -1,0 +1,50 @@
+.landing-page {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  background-color: #4CAF50;
+  color: white;
+  padding: 20px;
+}
+
+.welcome-message {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-size: 1.2em;
+  color: #333;
+  line-height: 1.6;
+}
+
+.admin-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 20px 0;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.admin-button:hover {
+  background-color: #45a049;
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.parking-image {
+  width: 80%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
