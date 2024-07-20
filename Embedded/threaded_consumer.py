@@ -26,8 +26,11 @@ def process_image(body, camera_type):
 def callback_csi2(ch, method, properties, body):
     process_image(body, 'CSI2')
 
-def callback_usb(ch, method, properties, body):
-    process_image(body, 'USB')
+def callback_usb1(ch, method, properties, body):
+    process_image(body, 'USB1')
+
+def callback_usb2(ch, method, properties, body):
+    process_image(body, 'USB2')
 
 def start_consuming(queue_name, callback):
     # Set up RabbitMQ connection
@@ -50,12 +53,15 @@ if __name__ == "__main__":
 
     ip_address = sys.argv[1]
     # Start two threads to consume from both queues
-    thread_csi2 = threading.Thread(target=start_consuming, args=('csi2_image_queue', callback_csi2))
-    thread_usb = threading.Thread(target=start_consuming, args=('usb_image_queue', callback_usb))
+    #thread_csi2 = threading.Thread(target=start_consuming, args=('csi2_image_queue', callback_csi2))
+    thread_usb1 = threading.Thread(target=start_consuming, args=('usb1_image_queue', callback_usb1))
+    thread_usb2 = threading.Thread(target=start_consuming, args=('usb2_image_queue', callback_usb2))
 
-    thread_csi2.start()
-    thread_usb.start()
+    #thread_csi2.start()
+    thread_usb1.start()
+    thread_usb2.start()
 
-    thread_csi2.join()
-    thread_usb.join()
+    #thread_csi2.join()
+    thread_usb1.join()
+    thread_usb2.join()
 

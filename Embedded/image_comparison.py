@@ -2,6 +2,11 @@ import cv2
 import os
 from skimage.metrics import structural_similarity as ssim
 
+"""
+def test_func():
+    print("print from test function");
+"""
+
 # Function to compare two images using MSE and SSIM
 def compare_images(image1_path, image2_path, ssim_threshold=0.85):
     # Check if image files exist
@@ -48,8 +53,6 @@ def compare_images(image1_path, image2_path, ssim_threshold=0.85):
     else:
         #print(f"Images are similar enough. SSIM: {ssim_index:.4f}, MSE: {mse:.4f}")
         return 1
-
-    return mse, ssim_index
 
 def is_same(image1_path, image2_path):
     # Compare images if they were successfully loaded
