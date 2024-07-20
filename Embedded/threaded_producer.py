@@ -5,6 +5,7 @@ from picamera2 import Picamera2
 import pika
 import base64
 import numpy as np
+import image_comparison as ic
 
 def send_to_rabbitmq(image, routing_key):
     credentials = pika.PlainCredentials('FYDP', 'fydp')
@@ -41,12 +42,18 @@ def capture_csi2_camera():
         time.sleep(2)
 
 if __name__ == '__main__':
-    usb_thread = threading.Thread(target=capture_usb_camera)
-    csi2_thread = threading.Thread(target=capture_csi2_camera)
+    image1_path = r'/home/fydp/parkeasy/Embedded/image1.jpg'
+    image2_path = r'/home/fydp/parkeasy/Embedded/image1.jpg'
+    if(ic.is_same(image1_path, image2_path)):
+        print("same")
+    else:
+        print("different")
+    #usb_thread = threading.Thread(target=capture_usb_camera)
+    #csi2_thread = threading.Thread(target=capture_csi2_camera)
 
-    usb_thread.start()
-    csi2_thread.start()
+    #usb_thread.start()
+    #csi2_thread.start()
 
-    usb_thread.join()
-    csi2_thread.join()
+    #usb_thread.join()
+    #csi2_thread.join()
 

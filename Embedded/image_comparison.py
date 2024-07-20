@@ -27,13 +27,13 @@ def compare_images(image1_path, image2_path, ssim_threshold=0.85):
         image1 = cv2.resize(image1, (w2, h2))
     else:
         image2 = cv2.resize(image2, (w1, h1))
-    print(f"Image resize was completed")
+    #print(f"Image resize was completed")
 
     # Convert images to grayscale
     gray_image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
     gray_image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
     
-    print(f"Grayscale was completed")
+    #print(f"Grayscale was completed")
 
     # Calculate MSE
     mse = ((gray_image1 - gray_image2) ** 2).mean()
@@ -43,36 +43,21 @@ def compare_images(image1_path, image2_path, ssim_threshold=0.85):
 
     # Determine if images are different based on SSIM threshold
     if ssim_index < ssim_threshold:
-        print(f"Image is different. SSIM: {ssim_index:.4f}, MSE: {mse:.4f}")
+        #print(f"Image is different. SSIM: {ssim_index:.4f}, MSE: {mse:.4f}")
+        return 0
     else:
-        print(f"Images are similar enough. SSIM: {ssim_index:.4f}, MSE: {mse:.4f}")
+        #print(f"Images are similar enough. SSIM: {ssim_index:.4f}, MSE: {mse:.4f}")
+        return 1
 
     return mse, ssim_index
 
-# Paths to your images
-image1_path = r'/home/fydp/parkeasy/image1.jpg'
-image2_path = r'/home/fydp/parkeasy/image2.jpg'
-
-# Print image paths
-print(f'Image 1 Path: {image1_path}')
-print(f'Image 2 Path: {image2_path}')
-
-# Check if images exist and can be opened
-if os.path.exists(image1_path):
-    print(f"Image 1 exists: {image1_path}")
-else:
-    print(f"Image 1 does not exist: {image1_path}")
-
-if os.path.exists(image2_path):
-    print(f"Image 2 exists: {image2_path}")
-else:
-    print(f"Image 2 does not exist: {image2_path}")
-
-# Compare images if they were successfully loaded
-if os.path.exists(image1_path) and os.path.exists(image2_path):
-    try:
-        mse_value, ssim_value = compare_images(image1_path, image2_path, ssim_threshold=0.85)
-    except ValueError as ve:
-        print(ve)
-else:
-    print("One or both images could not be loaded. Comparison aborted.")
+def is_same(image1_path, image2_path):
+    # Compare images if they were successfully loaded
+    if os.path.exists(image1_path) and os.path.exists(image2_path):
+        try:
+            comparison = compare_images(image1_path, image2_path, ssim_threshold=0.85)
+            return comparison
+        except ValueError as ve:
+            print(ve)
+    else:
+        print("One or both images could not be loaded. Comparison aborted.")
