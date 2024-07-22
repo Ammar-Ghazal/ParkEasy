@@ -28,7 +28,7 @@ def capture_usb1_camera():
     previous_image_path = "/home/fydp/parkeasy/Embedded/previous1.jpg"
     current_image_path = None
     previous_image_exists = False
-    for x in range(10):
+    while(1):
         ret, frame = cap.read()
         if ret:
             cv2.imwrite('/home/fydp/parkeasy/Embedded/current1.jpg', frame)
@@ -43,8 +43,8 @@ def capture_usb1_camera():
             else:
                 is_same_result = 0
             if is_same_result == 0:
-                #print("sending image to rabbitmq")
-                #send_to_rabbitmq(frame, 'usb1_image_queue')
+                print("sending image to rabbitmq")
+                send_to_rabbitmq(frame, 'usb1_image_queue')
                 if previous_image_exists:
                     os.remove(previous_image_path)
                     print("deleting previous image")
@@ -54,14 +54,14 @@ def capture_usb1_camera():
             else:
                 os.remove(current_image_path)
                 print("deleting current image")
-        time.sleep(0.5)
+        #time.sleep(0.5)
 
 def capture_usb2_camera():
     cap = cv2.VideoCapture(2)  # 0 for first USB camera
     previous_image_path = "/home/fydp/parkeasy/Embedded/previous2.jpg"
     current_image_path = None
     previous_image_exists = False
-    for x in range(10):
+    while(1):
         ret, frame = cap.read()
         if ret:
             cv2.imwrite('/home/fydp/parkeasy/Embedded/current2.jpg', frame)
@@ -76,8 +76,8 @@ def capture_usb2_camera():
             else:
                 is_same_result = 0
             if is_same_result == 0:
-                #print("sending image to rabbitmq")
-                #send_to_rabbitmq(frame, 'usb2_image_queue')
+                print("sending image to rabbitmq")
+                send_to_rabbitmq(frame, 'usb2_image_queue')
                 if previous_image_exists:
                     os.remove(previous_image_path)
                     print("deleting previous image")
@@ -87,7 +87,7 @@ def capture_usb2_camera():
             else:
                 os.remove(current_image_path)
                 print("deleting current image")
-        time.sleep(1)
+        #time.sleep(0.5)
 
 def capture_csi2_camera():
     picam2 = Picamera2()
@@ -118,5 +118,7 @@ if __name__ == '__main__':
 
     usb1_thread.join()
     usb2_thread.join()
+    os.remove("/home/fydp/parkeasy/Embedded/previous1.jpg")
+    os.remove("/home/fydp/parkeasy/Embedded/previous2.jpg")
     #csi2_thread.join()
 
