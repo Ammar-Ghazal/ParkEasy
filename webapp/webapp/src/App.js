@@ -6,12 +6,12 @@ import AdminPage from './components/AdminPage';
 export default function App() {
   console.log("App component is rendering");
   return (
-    // <Router>
-    //   <Routes>
-    //     <Route path="/" element={<LandingPage />} />
-    //     <Route path="/admin" element={<AdminPage />} />
-    //   </Routes>
-    // </Router>
-    <LandingPage />
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </Router>
+    //<LandingPage />
   );
 }

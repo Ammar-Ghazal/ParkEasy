@@ -1,10 +1,17 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './landingpage.css';
 
 const LandingPage = () => {
   return (
     <div className="landing-page">
       <header className="header">
+        <nav className="navbar">
+          <ul>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/admin">Admin Page</Link></li>
+          </ul>
+        </nav>
         <h1>Welcome to ParkEasy</h1>
       </header>
       <div className="welcome-message">
@@ -15,7 +22,6 @@ const LandingPage = () => {
       <div className="image-container">
         <img src="/parkingLot.jpg" alt="Parking Lot" className="parking-image"/>
       </div>
-      
     </div>
   );
 };
