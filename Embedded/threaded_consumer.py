@@ -5,6 +5,7 @@ import numpy as np
 import time
 import threading
 import sys
+import shutil
 
 def process_image(body, camera_type):
     # Decode the base64 image data
@@ -17,7 +18,12 @@ def process_image(body, camera_type):
     img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
     
     # Create a unique filename based on the camera type and timestamp
-    filename = f'received_image_{camera_type}_{int(time.time())}.jpg'
+    if (camera_type == 'USB1'):
+        filename = f'parkingLot1.jpg'
+    elif (camera_type == 'USB2'):
+        filename = f'parkingLot2.jpg'
+    else: 
+        filename = f'received_image_{camera_type}_{int(time.time())}.jpg'
     
     # Save the image to a file
     cv2.imwrite(filename, img)
@@ -25,12 +31,13 @@ def process_image(body, camera_type):
 
 def callback_csi2(ch, method, properties, body):
     process_image(body, 'CSI2')
-
 def callback_usb1(ch, method, properties, body):
     process_image(body, 'USB1')
+    shutil.move('/home/hussain/Documents/S24/FYDP/parkeasy/Embedded/parkingLot1.jpg','/home/hussain/Documents/S24/FYDP/parkeasy/webapp/webapp/public/parkingLot1.jpg')
 
 def callback_usb2(ch, method, properties, body):
     process_image(body, 'USB2')
+    shutil.move('/home/hussain/Documents/S24/FYDP/parkeasy/Embedded/parkingLot2.jpg','/home/hussain/Documents/S24/FYDP/parkeasy/webapp/webapp/public/parkingLot2.jpg')
 
 def start_consuming(queue_name, callback):
     # Set up RabbitMQ connection
