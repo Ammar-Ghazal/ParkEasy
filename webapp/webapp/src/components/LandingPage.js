@@ -20,10 +20,7 @@ const LandingPage = () => {
         </p>
       </div>
       <div className="image-container">
-        <img src="/parkingLot1.jpg" alt="Parking Lot" className="parking-image"/>
-      </div>
-      <div className="image-container">
-        <img src="/parkingLot2.jpg" alt="Parking Lot" className="parking-image"/>
+        <img src="/outputgraphic.jpg" alt="Parking Lot" className="parking-image"/>
       </div>
     </div>
   );

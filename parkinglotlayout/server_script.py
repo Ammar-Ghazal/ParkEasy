@@ -1,4 +1,5 @@
 import os
+import shutil
 from roboflow import Roboflow
 from inference_sdk import InferenceHTTPClient
 from inference_sdk.http.client import InferenceHTTPClient
@@ -107,7 +108,7 @@ def scan_parking_lot(image_path):
     print("\n")
     print("Result: \n", result)
     print("Type: ", type(result))
-
+ 
     with open("RoboFlowOutput.json", 'w') as f:
         json.dump(result, f, indent=4)
 
@@ -142,9 +143,18 @@ def scan_parking_lot(image_path):
     
     # Save the image
     cv2.imwrite('outputgraphic.jpg', parking_lot_graphic)
+    
+    source_path = 'outputgraphic.jpg'
+    destination_dir = '/home/hussain/Documents/S24/FYDP/parkeasy/webapp/webapp/public/'
+    destination_path = os.path.join(destination_dir, os.path.basename(source_path))
+    # Check if the destination file exists and remove it if it does
+    if os.path.exists(destination_path):
+        os.remove(destination_path)
+    # Move the file
+    shutil.move(source_path, destination_dir)
 
 if __name__ == "__main__":
-    parking_lot_images = './parkinglotimages/single_image_folder'  # Replace with your input folder path
+    parking_lot_images = '/home/hussain/Documents/S24/FYDP/parkeasy/parkinglotlayout/parkinglotimages/single_image_folder/'  # Replace with your input folder path
     
     images = os.listdir(parking_lot_images)
     for image in images:

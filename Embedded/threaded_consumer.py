@@ -1,3 +1,4 @@
+import subprocess
 import pika
 import base64
 import cv2
@@ -33,7 +34,9 @@ def callback_csi2(ch, method, properties, body):
     process_image(body, 'CSI2')
 def callback_usb1(ch, method, properties, body):
     process_image(body, 'USB1')
-    shutil.move('/home/hussain/Documents/S24/FYDP/parkeasy/Embedded/parkingLot1.jpg','/home/hussain/Documents/S24/FYDP/parkeasy/webapp/webapp/public/parkingLot1.jpg')
+    #shutil.move('/home/hussain/Documents/S24/FYDP/parkeasy/Embedded/parkingLot1.jpg','/home/hussain/Documents/S24/FYDP/parkeasy/webapp/webapp/public/parkingLot1.jpg')
+    shutil.move('/home/hussain/Documents/S24/FYDP/parkeasy/Embedded/parkingLot1.jpg','/home/hussain/Documents/S24/FYDP/parkeasy/parkinglotlayout/parkinglotimages/single_image_folder/parkingLot1.jpg')
+    subprocess.run(['python3', '../parkinglotlayout/server_script.py'])
 
 def callback_usb2(ch, method, properties, body):
     process_image(body, 'USB2')
