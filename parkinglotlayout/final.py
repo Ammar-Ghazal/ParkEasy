@@ -10,6 +10,10 @@ import json
 # using a parking lot MV model on roboflow:
 # https://universe.roboflow.com/tasarimproject/car-space-find/model/2
 # API Key is: hZHL7nrK0z63BmXWx6dI
+script_dir = os.path.dirname(os.path.abspath(__file__))
+car_icon_dir = os.path.join(script_dir,'carpng.png')
+print(car_icon_dir)
+car_icon = cv2.imread(car_icon_dir, cv2.IMREAD_UNCHANGED)  # Load with alpha channel
 
 def cleanup(result):
     """Align parking spot rectangles to create a cleaner parking lot layout."""
@@ -30,7 +34,7 @@ def cleanup(result):
     ]
     
     # Create and use the rectangle aligner
-    aligner = RectangleAligner(snap_threshold=10.0)  # Adjust threshold as needed
+    aligner = RectangleAligner(snap_threshold=30.0)  # Adjust threshold as needed
     aligned_rectangles = aligner.align_rectangles(rectangles)
     
     # Convert back to prediction format
@@ -120,10 +124,6 @@ class RectangleAligner:
         ]
         return aligned_rectangles
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-car_icon_dir = os.path.join(script_dir, 'carpng.png')
-car_icon = cv2.imread(car_icon_dir, cv2.IMREAD_UNCHANGED)  # Load with alpha channel
-
 def draw_rectangle(graphic, x, y, width, height, color):
     height = int(height / 2)
 
@@ -132,12 +132,16 @@ def draw_rectangle(graphic, x, y, width, height, color):
 
     # If color is red, overlay a car icon
     if color == (0, 0, 255):  # Red in BGR
-        overlay_car(graphic, x - width // 2, y - height // 2, width, height)
+        # Calculate center position of rectangle
+        center_x = (x - width) + width//2  # Middle of rectangle
+        center_y = y  # Middle of rectangle height
+        # Position car at center by offsetting by half its dimensions
+        overlay_car(graphic, int(center_x - width//2), int(center_y - height//2), width, height)
 
 def overlay_car(graphic, x, y, width, height):
     """Overlays a red car icon inside the rectangle."""
     global car_icon
-
+   
     if car_icon is None:
         print("Car icon not loaded!")
         return
@@ -147,21 +151,52 @@ def overlay_car(graphic, x, y, width, height):
 
     # Get icon dimensions
     icon_h, icon_w, icon_c = car_resized.shape
-    if icon_c == 4:  # If it has an alpha channel
-        alpha_mask = car_resized[:, :, 3] / 255.0  # Normalize alpha to [0,1]
-        for c in range(3):  # Blend only RGB channels
-            graphic[y:y+icon_h, x:x+icon_w, c] = (1 - alpha_mask) * graphic[y:y+icon_h, x:x+icon_w, c] + alpha_mask * car_resized[:, :, c]
-    else:
-        graphic[y:y+icon_h, x:x+icon_w] = car_resized  # No alpha, just copy
 
+    # Calculate valid coordinates to prevent out-of-bounds access
+    img_h, img_w = graphic.shape[:2]
+    
+    # Ensure coordinates are within image bounds
+    x_start = max(0, x)
+    y_start = max(0, y)
+    x_end = min(img_w, x + icon_w)
+    y_end = min(img_h, y + icon_h)
+    
+    # Calculate corresponding regions in the icon
+    icon_x_start = max(0, -x)
+    icon_y_start = max(0, -y)
+    icon_x_end = icon_w - max(0, (x + icon_w) - img_w)
+    icon_y_end = icon_h - max(0, (y + icon_h) - img_h)
+
+    if icon_c == 4:  # If it has an alpha channel
+        # Get the valid region of the alpha mask
+        alpha_mask = car_resized[icon_y_start:icon_y_end, icon_x_start:icon_x_end, 3] / 255.0
+        
+        for c in range(3):  # Blend only RGB channels
+            graphic[y_start:y_end, x_start:x_end, c] = (
+                (1 - alpha_mask) * graphic[y_start:y_end, x_start:x_end, c] + 
+                alpha_mask * car_resized[icon_y_start:icon_y_end, icon_x_start:icon_x_end, c]
+            )
+    else:
+        graphic[y_start:y_end, x_start:x_end] = car_resized[icon_y_start:icon_y_end, icon_x_start:icon_x_end]
+        
 def scan_parking_lot(image_path):
+    with open(image_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+
     CLIENT = InferenceHTTPClient(
         api_url="https://detect.roboflow.com",
         api_key="hZHL7nrK0z63BmXWx6dI"
     )
 
     # image_path = "./parkinglotimages/parkinglot8.jpg"
-    result = CLIENT.infer(image_path, model_id="parking-detection-jeremykevin/8")
+    result = CLIENT.run_workflow(
+        workspace_name="parkeasy",
+        workflow_id="detect-count-and-visualize-2",
+        images={
+            "image": [encoded_string]
+        },
+        use_cache=True # cache workflow definition for 15 minutes
+    )
 
     print(image_path)
     free_spots = 0
