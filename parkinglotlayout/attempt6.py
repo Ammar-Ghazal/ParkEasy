@@ -144,9 +144,17 @@ def scan_parking_lot(image_path):
     # cv2.imwrite('outputgraphic.jpg', parking_lot_graphic)
 
 if __name__ == "__main__":
-    parking_lot_images = './parkinglotimages'  # Replace with your input folder path
-    
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Construct path to parkinglotimages relative to the script
+    parking_lot_images = os.path.join(script_dir, 'parkinglotimages')
+
+    print("here is the location:", parking_lot_images)
+    # Get list of images
     images = os.listdir(parking_lot_images)
+    # parking_lot_images = './parkinglotimages'  # Replace with your input folder path
+    
+    # images = os.listdir(parking_lot_images)
     for image in images:
         if image.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp')):
             image_path = os.path.join(parking_lot_images, image)
