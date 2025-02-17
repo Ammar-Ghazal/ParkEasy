@@ -1,0 +1,4 @@
+inference_id
+time
+image
+predictions
