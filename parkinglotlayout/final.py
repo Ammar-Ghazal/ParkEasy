@@ -180,25 +180,21 @@ def overlay_car(graphic, x, y, width, height):
         graphic[y_start:y_end, x_start:x_end] = car_resized[icon_y_start:icon_y_end, icon_x_start:icon_x_end]
         
 def scan_parking_lot(image_path):
-    with open(image_path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-
     CLIENT = InferenceHTTPClient(
         api_url="https://detect.roboflow.com",
         api_key="hZHL7nrK0z63BmXWx6dI"
     )
 
     # image_path = "./parkinglotimages/parkinglot8.jpg"
-    result = CLIENT.run_workflow(
-        workspace_name="parkeasy",
-        workflow_id="detect-count-and-visualize-2",
-        images={
-            "image": [encoded_string]
-        },
-        use_cache=True # cache workflow definition for 15 minutes
-    )
+    result = CLIENT.infer(image_path, model_id="parking-detection-jeremykevin/8")
+
 
     print(image_path)
+    print("Type: ", type(result))
+    print("Result: \n", result)
+    with open("output.txt", "w") as f:
+        f.write("\n".join(result))  # Joins list elements with a newline
+
     free_spots = 0
     occupied_spots = 0
 
