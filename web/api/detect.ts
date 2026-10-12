@@ -9,7 +9,7 @@
 //   ALLOWED_ORIGINS    optional, comma-separated extra origins allowed to call
 //                      this endpoint (the deployment's own origin always is)
 
-const ROBOFLOW_URL = 'https://serverless.roboflow.com/infer/object_detection';
+const ROBOFLOW_URL = 'https://serverless.roboflow.com';
 
 // Only these models can be requested, so the key cannot be used for anything else.
 const ALLOWED_MODELS = ['ultimate-form/1', 'parking-detection-jeremykevin/8'];
@@ -107,15 +107,16 @@ export async function POST(request: Request): Promise<Response> {
 
     let upstream: Response;
     try {
-        upstream = await fetch(ROBOFLOW_URL, {
+        // Roboflow's hosted API: POST /<project>/<version> with the base64 image
+        // as the body. Thresholds are percentages; ask for nearly everything and
+        // let the page filter by confidence.
+        const url = new URL(`${ROBOFLOW_URL}/${modelId}`);
+        url.searchParams.set('api_key', apiKey);
+        url.searchParams.set('confidence', '5');
+        upstream = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                api_key: apiKey,
-                model_id: modelId,
-                image: { type: 'base64', value: image },
-                confidence: 0.05,
-            }),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: image,
             signal: AbortSignal.timeout(25_000),
         });
     } catch {
