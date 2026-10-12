@@ -29,7 +29,7 @@ This is the software half of the original capstone. The original system had came
 
 | Keep | From | Notes |
 |---|---|---|
-| Roboflow inference call | `parkinglotlayout/generate-layout.py` (`scan_parking_lot`) | Model `parking-detection-jeremykevin/8`, classes `free` and `car`. |
+| Roboflow inference call | `parkinglotlayout/generate-layout.py` (`scan_parking_lot`) | Own model [`ultimate-form/1`](https://universe.roboflow.com/parkeasy/ultimate-form): YOLOv8, classes `free` and `car`, 3,246 training images, mAP@50 98.8%. The script currently calls a third-party model, `parking-detection-jeremykevin/8`; see open questions. |
 | Grid alignment | `parkinglotlayout/generate-layout.py` (`cleanup`, `RectangleAligner`) | Snaps box edges to shared lines within a threshold. |
 | Layout drawing | `parkinglotlayout/generate-layout.py` (`draw_rectangle`, `overlay_car`), `carpng.png` | Draws boxes and the car icon on a black canvas. |
 
@@ -155,6 +155,6 @@ No test calls the real Roboflow service.
 
 ## 11. Open questions
 
-1. **Model quality.** The last commit message says the API was "still finicky". Check the model on a few photos before building around it.
+1. **Which model.** The script calls `parking-detection-jeremykevin/8`, not the project's own `ultimate-form/1`. Both use the classes `free` and `car`. Compare them on a few photos and settle on one; the last commit message says the API was "still finicky".
 2. **Sample photos.** Source three or four aerial parking-lot photos that are your own or freely licensed.
 3. **License.** None chosen yet.
