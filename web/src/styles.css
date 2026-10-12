@@ -78,13 +78,15 @@ header p,
     grid-column: 1 / -1;
 }
 
-label {
+label,
+.field {
     display: grid;
     gap: 4px;
     font-size: 0.9rem;
 }
 
-label > span {
+label > span,
+.field > span {
     color: var(--muted);
 }
 

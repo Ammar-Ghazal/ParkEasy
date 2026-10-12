@@ -9,11 +9,6 @@ import {
 } from './roboflow';
 
 const DEFAULT_MODEL = 'parking-space-detect/1';
-// Models the proxy accepts; keep in sync with ALLOWED_MODELS in api/detect.ts.
-const PROXY_MODELS = [
-    { id: 'parking-space-detect/1', label: 'ParkEasy (parking-space-detect)' },
-    { id: 'parking-detection-jeremykevin/8', label: 'Earlier third-party model' },
-];
 // Set at build time: the proxy's origin, or null when the page should ask for a key.
 const API_BASE = __API_BASE__;
 const USE_PROXY = API_BASE !== null;
@@ -136,16 +131,10 @@ export default function App() {
 
             {USE_PROXY ? (
                 <section className="panel settings" aria-label="Settings">
-                    <label>
+                    <div className="field">
                         <span>Model</span>
-                        <select value={modelId} onChange={(e) => setModelId(e.target.value)}>
-                            {PROXY_MODELS.map((m) => (
-                                <option key={m.id} value={m.id}>
-                                    {m.label}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                        <code>{DEFAULT_MODEL}</code>
+                    </div>
                     <p className="note">
                         Photos are sent to Roboflow for detection and are not stored by this site.
                     </p>
