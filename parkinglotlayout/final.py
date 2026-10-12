@@ -1,15 +1,12 @@
 import os
-from roboflow import Roboflow
 from inference_sdk import InferenceHTTPClient
-from inference_sdk.http.client import InferenceHTTPClient
-import base64
 import numpy as np
 import cv2
 import json
 
 # using a parking lot MV model on roboflow:
 # https://universe.roboflow.com/tasarimproject/car-space-find/model/2
-# API Key is: YOUR_ROBOFLOW_API_KEY
+# The API key is read from the ROBOFLOW_API_KEY environment variable.
 script_dir = os.path.dirname(os.path.abspath(__file__))
 car_icon_dir = os.path.join(script_dir,'carpng.png')
 print(car_icon_dir)
@@ -182,7 +179,7 @@ def overlay_car(graphic, x, y, width, height):
 def scan_parking_lot(image_path):
     CLIENT = InferenceHTTPClient(
         api_url="https://detect.roboflow.com",
-        api_key="YOUR_ROBOFLOW_API_KEY"
+        api_key=os.environ["ROBOFLOW_API_KEY"]
     )
 
     # image_path = "./parkinglotimages/parkinglot8.jpg"
