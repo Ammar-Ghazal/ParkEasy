@@ -127,7 +127,9 @@ export async function POST(request: Request): Promise<Response> {
         const message =
             upstream.status === 401 || upstream.status === 403
                 ? 'The server’s Roboflow API key was rejected.'
-                : 'The detection service returned an error.';
+                : `The detection service returned an error (${upstream.status}).`;
+        // Full detail goes to the function log only.
+        console.error('Roboflow error', upstream.status, (await upstream.text()).slice(0, 500));
         return json(request, 502, { message });
     }
 
