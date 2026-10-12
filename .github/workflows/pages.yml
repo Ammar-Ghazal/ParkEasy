@@ -30,6 +30,10 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci
       - run: npm run build
+        env:
+          # Origin of the Vercel deployment that hosts api/detect.ts. When this
+          # repository variable is unset, the page asks visitors for a key.
+          VITE_API_URL: ${{ vars.API_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web/dist

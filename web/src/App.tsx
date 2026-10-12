@@ -1,8 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { alignPredictions } from './align';
-import { detect, prepareImage, type InferenceResult, type Prediction } from './roboflow';
+import {
+    detect,
+    detectViaProxy,
+    prepareImage,
+    type InferenceResult,
+    type Prediction,
+} from './roboflow';
 
 const DEFAULT_MODEL = 'ultimate-form/1';
+// Models the proxy accepts; keep in sync with ALLOWED_MODELS in api/detect.ts.
+const PROXY_MODELS = [
+    { id: 'ultimate-form/1', label: 'ParkEasy (ultimate-form/1)' },
+    { id: 'parking-detection-jeremykevin/8', label: 'Earlier third-party model' },
+];
+// Set at build time: the proxy's origin, or null when the page should ask for a key.
+const API_BASE = __API_BASE__;
+const USE_PROXY = API_BASE !== null;
 const KEY_STORAGE = 'parkeasy.roboflowKey';
 const MODEL_STORAGE = 'parkeasy.modelId';
 
@@ -34,7 +48,9 @@ type Photo = { previewUrl: string; base64: string; width: number; height: number
 export default function App() {
     const [apiKey, setApiKey] = useState(() => readStored(KEY_STORAGE));
     const [remember, setRemember] = useState(() => readStored(KEY_STORAGE) !== '');
-    const [modelId, setModelId] = useState(() => readStored(MODEL_STORAGE) || DEFAULT_MODEL);
+    const [modelId, setModelId] = useState(() =>
+        USE_PROXY ? DEFAULT_MODEL : readStored(MODEL_STORAGE) || DEFAULT_MODEL,
+    );
     const [photo, setPhoto] = useState<Photo | null>(null);
     const [result, setResult] = useState<InferenceResult | null>(null);
     const [busy, setBusy] = useState(false);
@@ -46,11 +62,11 @@ export default function App() {
     const fileInput = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        writeStored(KEY_STORAGE, remember && apiKey ? apiKey : null);
+        if (!USE_PROXY) writeStored(KEY_STORAGE, remember && apiKey ? apiKey : null);
     }, [apiKey, remember]);
 
     useEffect(() => {
-        writeStored(MODEL_STORAGE, modelId && modelId !== DEFAULT_MODEL ? modelId : null);
+        if (!USE_PROXY) writeStored(MODEL_STORAGE, modelId && modelId !== DEFAULT_MODEL ? modelId : null);
     }, [modelId]);
 
     const visible = useMemo(
@@ -68,14 +84,17 @@ export default function App() {
         setError('');
         setResult(null);
         setElapsed(null);
-        if (!apiKey.trim()) {
+        if (!USE_PROXY && !apiKey.trim()) {
             setError('Enter your Roboflow API key first.');
             return;
         }
         setBusy(true);
         const started = performance.now();
         try {
-            const data = await detect(apiKey.trim(), modelId.trim() || DEFAULT_MODEL, next.base64);
+            const model = modelId.trim() || DEFAULT_MODEL;
+            const data = USE_PROXY
+                ? await detectViaProxy(API_BASE, model, next.base64)
+                : await detect(apiKey.trim(), model, next.base64);
             setResult(data);
             setElapsed((performance.now() - started) / 1000);
         } catch (e) {
@@ -115,41 +134,59 @@ export default function App() {
                 </p>
             </header>
 
-            <section className="panel settings" aria-label="Settings">
-                <label>
-                    <span>Roboflow API key</span>
-                    <input
-                        type="password"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="Paste your key"
-                        autoComplete="off"
-                        spellCheck={false}
-                    />
-                </label>
-                <label>
-                    <span>Model</span>
-                    <input
-                        type="text"
-                        value={modelId}
-                        onChange={(e) => setModelId(e.target.value)}
-                        placeholder={DEFAULT_MODEL}
-                        spellCheck={false}
-                    />
-                </label>
-                <label className="check">
-                    <input
-                        type="checkbox"
-                        checked={remember}
-                        onChange={(e) => setRemember(e.target.checked)}
-                    />
-                    <span>Remember the key in this browser</span>
-                </label>
-                <p className="note">
-                    The key is sent only to Roboflow, straight from your browser. It is never
-                    uploaded to this site or stored in the repository.
-                </p>
-            </section>
+            {USE_PROXY ? (
+                <section className="panel settings" aria-label="Settings">
+                    <label>
+                        <span>Model</span>
+                        <select value={modelId} onChange={(e) => setModelId(e.target.value)}>
+                            {PROXY_MODELS.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                    {m.label}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                    <p className="note">
+                        Photos are sent to Roboflow for detection and are not stored by this site.
+                    </p>
+                </section>
+            ) : (
+                <section className="panel settings" aria-label="Settings">
+                    <label>
+                        <span>Roboflow API key</span>
+                        <input
+                            type="password"
+                            value={apiKey}
+                            onChange={(e) => setApiKey(e.target.value)}
+                            placeholder="Paste your key"
+                            autoComplete="off"
+                            spellCheck={false}
+                        />
+                    </label>
+                    <label>
+                        <span>Model</span>
+                        <input
+                            type="text"
+                            value={modelId}
+                            onChange={(e) => setModelId(e.target.value)}
+                            placeholder={DEFAULT_MODEL}
+                            spellCheck={false}
+                        />
+                    </label>
+                    <label className="check">
+                        <input
+                            type="checkbox"
+                            checked={remember}
+                            onChange={(e) => setRemember(e.target.checked)}
+                        />
+                        <span>Remember the key in this browser</span>
+                    </label>
+                    <p className="note">
+                        The key is sent only to Roboflow, straight from your browser. It is never
+                        uploaded to this site or stored in the repository.
+                    </p>
+                </section>
+            )}
 
             <section
                 className={`panel drop${dragging ? ' dragging' : ''}`}

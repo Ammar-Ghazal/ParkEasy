@@ -64,6 +64,38 @@ export async function detect(
     return result as InferenceResult;
 }
 
+/** Calls this project's own proxy (api/detect.ts), which holds the API key server-side. */
+export async function detectViaProxy(
+    apiBase: string,
+    modelId: string,
+    imageBase64: string,
+): Promise<InferenceResult> {
+    let response: Response;
+    try {
+        response = await fetch(`${apiBase}/api/detect`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model_id: modelId, image: imageBase64 }),
+        });
+    } catch {
+        throw new Error('Could not reach the detection service. Check your connection and try again.');
+    }
+
+    let body: { message?: string } & Partial<InferenceResult> = {};
+    try {
+        body = await response.json();
+    } catch {
+        // not JSON
+    }
+    if (!response.ok) {
+        throw new Error(body.message ?? `The detection service returned ${response.status}.`);
+    }
+    if (!body.predictions || !body.image) {
+        throw new Error('Unexpected response from the detection service.');
+    }
+    return body as InferenceResult;
+}
+
 /** Downscales large photos and returns base64 JPEG data plus an object URL for display. */
 export async function prepareImage(
     file: File,
