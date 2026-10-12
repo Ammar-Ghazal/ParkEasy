@@ -29,9 +29,9 @@ This is the software half of the original capstone. The original system had came
 
 | Keep | From | Notes |
 |---|---|---|
-| Roboflow inference call | `parkinglotlayout/final.py` (`scan_parking_lot`) | Model `parking-detection-jeremykevin/8`, classes `free` and `car`. |
-| Grid alignment | `parkinglotlayout/final.py` (`cleanup`, `RectangleAligner`) | Snaps box edges to shared lines within a threshold. |
-| Layout drawing | `parkinglotlayout/final.py` (`draw_rectangle`, `overlay_car`), `carpng.png` | Draws boxes and the car icon on a black canvas. |
+| Roboflow inference call | `parkinglotlayout/generate-layout.py` (`scan_parking_lot`) | Model `parking-detection-jeremykevin/8`, classes `free` and `car`. |
+| Grid alignment | `parkinglotlayout/generate-layout.py` (`cleanup`, `RectangleAligner`) | Snaps box edges to shared lines within a threshold. |
+| Layout drawing | `parkinglotlayout/generate-layout.py` (`draw_rectangle`, `overlay_car`), `carpng.png` | Draws boxes and the car icon on a black canvas. |
 
 **Removed:** the original test photos (watermarked stock images, which cannot be redistributed), `Embedded/`, `Raspberry_Pi/`, `Server Image Processing/`, `attempt1.py` to `attempt6.py`, `server_script.py`, `test.py`, the committed virtualenv (`parkinglotlayout/bin`, `lib`, `lib64`, `share`, `pyvenv.cfg`), `output.txt`, `RoboFlowOutput.json`, and the Create React App project under `webapp/`.
 
@@ -90,7 +90,7 @@ Browser renders result
 
 ### Layout module
 
-The code from `final.py` moves into a small package with no side effects on import:
+The code from `generate-layout.py` moves into a small package with no side effects on import:
 
 - `detect(image_bytes) -> list[Detection]`
 - `align(detections, snap_threshold=30) -> list[Detection]`
@@ -102,7 +102,7 @@ Returning `spaces` as data as well as the PNG keeps the option open to draw the 
 
 These are problems in the current code that the rebuild has to resolve.
 
-1. **Hard-coded API key.** Done: `final.py` now reads `ROBOFLOW_API_KEY`. The old key must still be revoked in Roboflow.
+1. **Hard-coded API key.** Done: `generate-layout.py` now reads `ROBOFLOW_API_KEY`. The old key must still be revoked in Roboflow.
 2. **Desktop-only display.** `cv2.imshow` and `cv2.waitKey` need a screen. Use `opencv-python-headless` and return bytes. If the function bundle is too large for the host, the drawing can be ported to Pillow.
 3. **Box position.** Roboflow returns the centre of each box, but `draw_rectangle` treats `x` as the right edge and draws from `x - width` to `x`, so the layout is shifted left by half a box. Draw from `x - width/2` to `x + width/2`.
 4. **Broken debug write.** `"\n".join(result)` on a dictionary writes only its keys to `output.txt`. Remove it with the other debug prints and file writes.
@@ -148,7 +148,7 @@ No test calls the real Roboflow service.
 ## 10. Milestones
 
 1. **Clean the repository.** Done: fresh history containing only the layout code, key removed, `.gitignore`, requirements and README added.
-2. **Layout package.** Port `final.py` into `detect`, `align`, `render` with the fixes in section 6 and unit tests.
+2. **Layout package.** Port `generate-layout.py` into `detect`, `align`, `render` with the fixes in section 6 and unit tests.
 3. **API.** FastAPI endpoint, validation, error handling, mocked tests.
 4. **Frontend.** Upload page with the three states and sample images.
 5. **Deploy.** Vercel project, key set as an environment variable, rate limit on.
