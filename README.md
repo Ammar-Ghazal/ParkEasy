@@ -21,6 +21,12 @@ I trained the detection model for this project: [Ultimate Form](https://universe
 - mAP@50 98.8%, precision 97.9%, recall 97.0% (as reported by Roboflow for version 1)
 - Dataset license: CC BY 4.0
 
+## Try the model
+
+A small React page for testing the model in the browser: https://ammar-ghazal.github.io/ParkEasy/
+
+Paste a Roboflow API key, upload a photo, and it shows the detections on the photo next to the generated layout, with free and occupied counts. The key is sent from your browser straight to Roboflow and is not stored anywhere else. The source is in `web/`.
+
 ## Run it
 
 Requires Python 3.10 or newer and a Roboflow API key.
