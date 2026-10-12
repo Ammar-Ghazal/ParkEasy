@@ -1,7 +1,7 @@
 # ParkEasy
 
 [![Live demo](https://img.shields.io/badge/demo-live-2457d6)](https://ammar-ghazal.github.io/ParkEasy/)
-[![Roboflow Universe](https://app.roboflow.com/images/try-model-badge.svg)](https://universe.roboflow.com/parkeasy/ultimate-form)
+[![Roboflow Universe](https://app.roboflow.com/images/try-model-badge.svg)](https://universe.roboflow.com/parkeasy/parking-space-detect)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 
 Turns a photo of a parking lot into a clean layout showing which spaces are free and which are taken.
@@ -20,7 +20,7 @@ This is a demonstration of the software side of a 2025 University of Waterloo ca
 
 ## The model
 
-I trained the detection model for this project: [Ultimate Form](https://universe.roboflow.com/parkeasy/ultimate-form) on Roboflow Universe.
+I trained the detection model for this project: [parking-space-detect](https://universe.roboflow.com/parkeasy/parking-space-detect) on Roboflow Universe.
 
 - YOLOv8 object detection, two classes: `car` and `free`
 - 3,246 images, compiled from open-source parking-lot datasets

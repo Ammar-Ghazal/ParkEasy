@@ -8,10 +8,10 @@ import {
     type Prediction,
 } from './roboflow';
 
-const DEFAULT_MODEL = 'ultimate-form/1';
+const DEFAULT_MODEL = 'parking-space-detect/1';
 // Models the proxy accepts; keep in sync with ALLOWED_MODELS in api/detect.ts.
 const PROXY_MODELS = [
-    { id: 'ultimate-form/1', label: 'ParkEasy (ultimate-form/1)' },
+    { id: 'parking-space-detect/1', label: 'ParkEasy (parking-space-detect)' },
     { id: 'parking-detection-jeremykevin/8', label: 'Earlier third-party model' },
 ];
 // Set at build time: the proxy's origin, or null when the page should ask for a key.

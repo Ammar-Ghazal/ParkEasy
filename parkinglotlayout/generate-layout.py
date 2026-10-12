@@ -8,11 +8,11 @@ import json
 load_dotenv()  # picks up ROBOFLOW_API_KEY from a local .env file, if present
 
 # Detection model. Default is the project's own model:
-# https://universe.roboflow.com/parkeasy/ultimate-form
+# https://universe.roboflow.com/parkeasy/parking-space-detect
 # Set ROBOFLOW_MODEL_ID to try another one. Models used earlier in development:
 #   parking-detection-jeremykevin/8  (third-party; the script used this until Oct 2026)
 #   car-space-find/2                 (third-party, https://universe.roboflow.com/tasarimproject/car-space-find)
-MODEL_ID = os.environ.get("ROBOFLOW_MODEL_ID", "ultimate-form/1")
+MODEL_ID = os.environ.get("ROBOFLOW_MODEL_ID", "parking-space-detect/1")
 # The API key is read from the ROBOFLOW_API_KEY environment variable.
 script_dir = os.path.dirname(os.path.abspath(__file__))
 car_icon_dir = os.path.join(script_dir,'carpng.png')

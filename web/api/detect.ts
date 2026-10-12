@@ -12,7 +12,7 @@
 const ROBOFLOW_URL = 'https://serverless.roboflow.com';
 
 // Only these models can be requested, so the key cannot be used for anything else.
-const ALLOWED_MODELS = ['ultimate-form/1', 'parking-detection-jeremykevin/8'];
+const ALLOWED_MODELS = ['parking-space-detect/1', 'parking-detection-jeremykevin/8'];
 const DEFAULT_ORIGINS = ['https://ammar-ghazal.github.io'];
 
 const MAX_IMAGE_CHARS = 4_000_000; // about 3 MB of image data as base64
