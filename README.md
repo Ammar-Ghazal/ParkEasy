@@ -25,7 +25,17 @@ I trained the detection model for this project: [Ultimate Form](https://universe
 
 A small React page for testing the model in the browser: https://ammar-ghazal.github.io/ParkEasy/
 
-Paste a Roboflow API key, upload a photo, and it shows the detections on the photo next to the generated layout, with free and occupied counts. The key is sent from your browser straight to Roboflow and is not stored anywhere else. The source is in `web/`.
+Upload a photo and it shows the detections on the photo next to the generated layout, with free and occupied counts. The source is in `web/`.
+
+The Roboflow API key is never in the page. A small serverless function (`web/api/detect.ts`) holds it and forwards requests to Roboflow. It only accepts this project's models, limits image size, and rate-limits each visitor.
+
+### Deploying your own copy
+
+1. Import this repository into [Vercel](https://vercel.com/new) and set the **Root Directory** to `web`.
+2. Add an environment variable named `ROBOFLOW_API_KEY` with your key, then deploy. The Vercel URL is now a working copy of the site.
+3. To make the GitHub Pages copy use it too, add a repository variable named `API_URL` with the Vercel URL (Settings → Secrets and variables → Actions → Variables) and re-run the Pages workflow. If your Pages site is on a different origin, list it in the function's `ALLOWED_ORIGINS` variable.
+
+Without `API_URL`, the Pages build falls back to asking each visitor for their own Roboflow key.
 
 ## Run it
 
@@ -49,3 +59,7 @@ Each layout opens in a window; press any key to move to the next photo.
 ## Status
 
 The script works locally but is a prototype. The plan to turn it into a small website, where a visitor uploads a photo and gets the layout back, is in [docs/spec.md](docs/spec.md), along with the known issues to fix on the way.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

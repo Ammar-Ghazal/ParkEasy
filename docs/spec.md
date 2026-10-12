@@ -98,6 +98,10 @@ The code from `generate-layout.py` moves into a small package with no side effec
 
 Returning `spaces` as data as well as the PNG keeps the option open to draw the layout as SVG in the browser later.
 
+### Current state
+
+A first version is live: the React page in `web/` and a Vercel function, `web/api/detect.ts`, that holds the key and forwards photos to Roboflow. The layout is drawn in the browser from a TypeScript port of the alignment code. The Python API described above is still the plan for moving detection, alignment and rendering server-side.
+
 ## 6. Fixes needed while porting
 
 These are problems in the current code that the rebuild has to resolve.
@@ -157,4 +161,3 @@ No test calls the real Roboflow service.
 
 1. **Model check.** The script now defaults to the project's own `ultimate-form/1`; it previously called `parking-detection-jeremykevin/8`. Both use the classes `free` and `car`. Compare them on a few photos with the model tester in `web/`.
 2. **Sample photos.** Source three or four aerial parking-lot photos that are your own or freely licensed.
-3. **License.** None chosen yet.
