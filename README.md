@@ -6,7 +6,7 @@
 
 Turns a photo of a parking lot into a clean layout showing which spaces are free and which are taken.
 
-This is the software side of a 2024 University of Waterloo capstone project. The original system also had camera and messaging code written by teammates; this repository contains only the layout generation, which I wrote.
+This is a demonstration of the software side of a 2025 University of Waterloo capstone project, which I wrote.
 
 ![A parking-lot photo with detected spaces outlined, next to the generated layout](docs/demo.png)
 
@@ -62,9 +62,6 @@ python parkinglotlayout/generate-layout.py
 
 Each layout opens in a window; press any key to move to the next photo.
 
-## Status
-
-The script works locally but is a prototype. The plan to turn it into a small website, where a visitor uploads a photo and gets the layout back, is in [docs/spec.md](docs/spec.md), along with the known issues to fix on the way.
 
 ## License
 
