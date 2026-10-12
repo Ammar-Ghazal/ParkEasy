@@ -6,7 +6,7 @@
 
 Turns a photo of a parking lot into a clean layout showing which spaces are free and which are taken.
 
-This is a demonstration of the software side of a 2025 University of Waterloo capstone project, which I wrote.
+Built as the software side of my 2025 University of Waterloo capstone project.
 
 ![A parking-lot photo with detected spaces outlined, next to the generated layout](docs/demo.png)
 
@@ -33,7 +33,7 @@ A small React page for testing the model in the browser: https://ammar-ghazal.gi
 
 Upload a photo and it shows the detections on the photo next to the generated layout, with free and occupied counts. The source is in `web/`.
 
-The Roboflow API key is never in the page. A small serverless function (`web/api/detect.ts`) holds it and forwards requests to Roboflow. It only accepts this project's models, limits image size, and rate-limits each visitor.
+A small serverless function (`web/api/detect.ts`) holds the API key and forwards photos to Roboflow. It only accepts this project's models, limits image size, and rate-limits each visitor.
 
 ### Deploying your own copy
 
