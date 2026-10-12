@@ -25,7 +25,6 @@ I trained the detection model for this project: [parking-space-detect](https://u
 - YOLOv8 object detection, two classes: `car` and `free`
 - 3,246 images, compiled from open-source parking-lot datasets
 - mAP@50 98.8%, precision 97.9%, recall 97.0%
-- Dataset license: CC BY 4.0
 
 ## Try the model
 
