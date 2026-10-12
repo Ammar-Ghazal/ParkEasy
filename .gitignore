@@ -17,3 +17,7 @@ parkinglotlayout/parkinglotimages/*
 
 # macOS
 .DS_Store
+
+# Web app
+node_modules/
+web/dist/
