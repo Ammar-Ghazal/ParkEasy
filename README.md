@@ -62,4 +62,6 @@ The script works locally but is a prototype. The plan to turn it into a small we
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+GNU Affero General Public License v3.0. See [LICENSE](LICENSE).
+
+Copyright (C) 2025 Ammar Ghazal
