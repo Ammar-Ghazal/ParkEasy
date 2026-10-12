@@ -105,21 +105,30 @@ export async function POST(request: Request): Promise<Response> {
         return json(request, 400, { message: 'Unknown model.' });
     }
 
-    let upstream: Response;
-    try {
-        // Roboflow's hosted API: POST /<project>/<version> with the base64 image
-        // as the body. Thresholds are percentages; ask for nearly everything and
-        // let the page filter by confidence.
-        const url = new URL(`${ROBOFLOW_URL}/${modelId}`);
-        url.searchParams.set('api_key', apiKey);
-        url.searchParams.set('confidence', '5');
-        upstream = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: image,
-            signal: AbortSignal.timeout(25_000),
-        });
-    } catch {
+    // Roboflow's hosted API: POST /<project>/<version> with the base64 image as
+    // the body. Thresholds are percentages; ask for nearly everything and let
+    // the page filter by confidence.
+    const url = new URL(`${ROBOFLOW_URL}/${modelId}`);
+    url.searchParams.set('api_key', apiKey);
+    url.searchParams.set('confidence', '5');
+
+    // The first request after a quiet period can fail while Roboflow loads the
+    // model, so try twice before giving up.
+    let upstream: Response | undefined;
+    for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+            upstream = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: image,
+                signal: AbortSignal.timeout(12_000),
+            });
+            if (upstream.status < 500) break;
+        } catch {
+            upstream = undefined;
+        }
+    }
+    if (!upstream) {
         return json(request, 502, { message: 'The detection service did not respond.' });
     }
 
