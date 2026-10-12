@@ -1,8 +1,11 @@
 import os
+from dotenv import load_dotenv
 from inference_sdk import InferenceHTTPClient
 import numpy as np
 import cv2
 import json
+
+load_dotenv()  # picks up ROBOFLOW_API_KEY from a local .env file, if present
 
 # using a parking lot MV model on roboflow:
 # https://universe.roboflow.com/tasarimproject/car-space-find/model/2

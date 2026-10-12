@@ -20,7 +20,7 @@ Requires Python 3.10 or newer and a Roboflow API key.
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-export ROBOFLOW_API_KEY=your-key
+cp .env.example .env   # then put your key in .env
 ```
 
 Put one or more photos in `parkinglotlayout/parkinglotimages/`, then:
