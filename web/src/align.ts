@@ -1,62 +1,101 @@
 import type { Prediction } from './roboflow';
 
-// TypeScript port of RectangleAligner in parkinglotlayout/generate-layout.py:
-// box edges that sit within `threshold` pixels of each other are snapped to a
-// shared line, so rows and columns of spaces line up.
+// Lines the detected boxes up into a tidy layout. Boxes are grouped into rows,
+// each row gets a shared top and bottom, and neighbouring spaces meet at a
+// single boundary halfway between their detected edges, so no space is drawn
+// over the one beside it.
+//
+// This replaces a direct port of RectangleAligner in
+// parkinglotlayout/generate-layout.py, which snapped every edge to the nearest
+// cluster of edges. Spaces are about as wide as that clustering distance, so
+// an edge could jump to a neighbour's line and stretch a space across it.
 
-function clusterLines(sorted: number[], threshold: number): number[] {
-    if (sorted.length === 0) return [];
-    const lines: number[] = [];
-    let cluster = [sorted[0]];
-    for (const value of sorted.slice(1)) {
-        if (value - cluster[cluster.length - 1] <= threshold) {
-            cluster.push(value);
+interface Box {
+    index: number;
+    start: number; // along the row
+    end: number;
+    lo: number; // across the row
+    hi: number;
+}
+
+function median(values: number[]): number {
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = sorted.length >> 1;
+    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+function groupRows(boxes: Box[], tolerance: number): Box[][] {
+    const sorted = [...boxes].sort((a, b) => a.lo + a.hi - (b.lo + b.hi));
+    const rows: Box[][] = [];
+    let centreSum = 0;
+    for (const box of sorted) {
+        const centre = (box.lo + box.hi) / 2;
+        const row = rows[rows.length - 1];
+        if (row && centre - centreSum / row.length <= tolerance) {
+            row.push(box);
+            centreSum += centre;
         } else {
-            lines.push(cluster.reduce((a, b) => a + b, 0) / cluster.length);
-            cluster = [value];
+            rows.push([box]);
+            centreSum = centre;
         }
     }
-    lines.push(cluster.reduce((a, b) => a + b, 0) / cluster.length);
-    return lines;
+    return rows;
 }
 
-function snap(value: number, lines: number[], threshold: number): number {
-    let best = value;
-    let bestDistance = Infinity;
-    for (const line of lines) {
-        const distance = Math.abs(line - value);
-        if (distance < bestDistance) {
-            best = line;
-            bestDistance = distance;
-        }
+function alignRow(row: Box[], gapLimit: number): void {
+    // Shared top and bottom, except for boxes that clearly do not fit the row.
+    const lo = median(row.map((b) => b.lo));
+    const hi = median(row.map((b) => b.hi));
+    const reach = (hi - lo) / 4;
+    for (const box of row) {
+        if (Math.abs(box.lo - lo) <= reach) box.lo = lo;
+        if (Math.abs(box.hi - hi) <= reach) box.hi = hi;
     }
-    return bestDistance <= threshold ? best : value;
+
+    // Neighbours that overlap or nearly touch share one boundary.
+    row.sort((a, b) => a.start + a.end - (b.start + b.end));
+    for (let i = 1; i < row.length; i++) {
+        const prev = row[i - 1];
+        const cur = row[i];
+        if (cur.start - prev.end > gapLimit) continue; // a real gap, e.g. a driveway
+        const boundary = (prev.end + cur.start) / 2;
+        if (boundary - prev.start < 2 || cur.end - boundary < 2) continue;
+        prev.end = boundary;
+        cur.start = boundary;
+    }
 }
 
-export function alignPredictions(predictions: Prediction[], threshold = 30): Prediction[] {
-    const edges = predictions.map((p) => ({
-        left: p.x - p.width / 2,
-        right: p.x + p.width / 2,
-        top: p.y - p.height / 2,
-        bottom: p.y + p.height / 2,
-    }));
-    const byValue = (a: number, b: number) => a - b;
-    const xLines = clusterLines(edges.flatMap((e) => [e.left, e.right]).sort(byValue), threshold);
-    const yLines = clusterLines(edges.flatMap((e) => [e.top, e.bottom]).sort(byValue), threshold);
+export function alignPredictions(predictions: Prediction[]): Prediction[] {
+    if (predictions.length < 2) return predictions;
 
-    return predictions.map((p, i) => {
-        const left = snap(edges[i].left, xLines, threshold);
-        const right = snap(edges[i].right, xLines, threshold);
-        const top = snap(edges[i].top, yLines, threshold);
-        const bottom = snap(edges[i].bottom, yLines, threshold);
-        // Keep the original box if snapping would collapse it.
-        if (right - left < 2 || bottom - top < 2) return p;
+    // Spaces sit side by side along their short edge. When the boxes are wider
+    // than tall the rows run vertically, so work on swapped axes.
+    const upright = median(predictions.map((p) => p.width)) <= median(predictions.map((p) => p.height));
+    const boxes: Box[] = predictions.map((p, index) => {
+        const [along, across, size, depth] = upright
+            ? [p.x, p.y, p.width, p.height]
+            : [p.y, p.x, p.height, p.width];
         return {
-            ...p,
-            x: (left + right) / 2,
-            y: (top + bottom) / 2,
-            width: right - left,
-            height: bottom - top,
+            index,
+            start: along - size / 2,
+            end: along + size / 2,
+            lo: across - depth / 2,
+            hi: across + depth / 2,
         };
     });
+
+    const size = median(boxes.map((b) => b.end - b.start));
+    const depth = median(boxes.map((b) => b.hi - b.lo));
+    for (const row of groupRows(boxes, depth / 2)) alignRow(row, size / 2);
+
+    const result = [...predictions];
+    for (const box of boxes) {
+        const along = (box.start + box.end) / 2;
+        const across = (box.lo + box.hi) / 2;
+        const p = predictions[box.index];
+        result[box.index] = upright
+            ? { ...p, x: along, y: across, width: box.end - box.start, height: box.hi - box.lo }
+            : { ...p, x: across, y: along, width: box.hi - box.lo, height: box.end - box.start };
+    }
+    return result;
 }
