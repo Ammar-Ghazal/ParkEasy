@@ -55,7 +55,7 @@ export default function App() {
     const [result, setResult] = useState<InferenceResult | null>(null);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
-    const [minConfidence, setMinConfidence] = useState(0.4);
+    const [minConfidence, setMinConfidence] = useState(0.5);
     const [aligned, setAligned] = useState(true);
     const [dragging, setDragging] = useState(false);
     const [elapsed, setElapsed] = useState<number | null>(null);
